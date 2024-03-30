@@ -7,9 +7,13 @@ import 'package:app/common/note_card.dart';
 import 'package:app/common/notify_user.dart';
 import 'package:app/features/authentication/presentation/login_screen.dart';
 import 'package:app/features/notes/presentation/notes_controller.dart';
+import 'package:app/state_management/notes/notes_cubit.dart';
 import 'package:app/storage/local_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../domain/note_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,16 +36,25 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getData() async {
-    notes = await NotesController().getAllNotes();
+    // notes = await NotesController().getAllNotes();
+    final res = await context.read<NotesCubit>().getAllNotes();
 
-    log("got notes");
-    log(notes.toString());
+    if (res.success) {
+      log("got notes");
+    } else {
+      notifyUser(context, res.result);
+    }
+
+    // log(notes.toString());
 
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    // final notesCubit = BlocProvider.of<NotesCubit>(context);
+    final notesCubit = context.watch<NotesCubit>();
+
     return Scaffold(
       key: scaffoldKey,
       endDrawer: NavigationDrawer(
@@ -178,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             mainAxisSpacing: 16.0,
                             crossAxisSpacing: 12,
                             childAspectRatio: 8 / 11),
-                    itemCount: notes?.length ?? 0,
+                    itemCount: notesCubit.state.length,
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: (selectedNote != index)
@@ -192,9 +205,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .viewInsets
                                                   .bottom),
                                           child: NoteEditSheet(
-                                            id: notes![index]['_id'],
-                                            title: notes![index]['title'],
-                                            body: notes![index]['body'],
+                                            id: notesCubit.state[index].id,
+                                            title:
+                                                notesCubit.state[index].title,
+                                            body: notesCubit.state[index].body,
                                           ),
                                         ));
                               }
@@ -202,8 +216,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 showLoader(context);
                                 // log('note will be deleted ' + notes![index]['title']);
 
-                                final res = await NotesController()
-                                    .deleteNote(noteId: notes![index]['_id']);
+                                final res = await context
+                                    .read<NotesCubit>()
+                                    .deleteNote(
+                                        noteId: notesCubit.state[index].id!);
 
                                 hideLoader(context);
 
@@ -211,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   selectedNote = -1;
                                 });
 
-                                notifyUser(context, res);
+                                notifyUser(context, res.result);
                               },
                         onLongPress: () {
                           setState(() {
@@ -219,8 +235,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           });
                         },
                         child: NoteCard(
-                          title: notes?[index]['title'] ?? "title",
-                          body: notes?[index]['body'] ?? "body",
+                          title: notesCubit.state[index].title!,
+                          body: notesCubit.state[index].body!,
                           isSelected: (selectedNote == index),
                           counter: 0,
                         ),

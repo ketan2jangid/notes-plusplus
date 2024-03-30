@@ -24,6 +24,8 @@ class NotesController {
     try {
       final res = await _repo.addNote(title: title, body: body);
 
+      log(res['data'].toString());
+
       return res['msg'];
     } catch (e) {
       log(e.toString());
@@ -32,9 +34,13 @@ class NotesController {
     }
   }
 
-  Future<String> updateNote({required String noteId, required String title, required String body}) async {
+  Future<String> updateNote(
+      {required String noteId,
+      required String title,
+      required String body}) async {
     try {
-      final res = await _repo.updateNote(noteId: noteId, title: title, body: body);
+      final res =
+          await _repo.updateNote(noteId: noteId, title: title, body: body);
 
       return res['msg'];
     } catch (e) {

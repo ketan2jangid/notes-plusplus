@@ -4,7 +4,9 @@ import 'package:app/common/common_input_field.dart';
 import 'package:app/common/loader.dart';
 import 'package:app/common/notify_user.dart';
 import 'package:app/features/notes/presentation/notes_controller.dart';
+import 'package:app/state_management/notes/notes_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 
 class NoteEditSheet extends StatefulWidget {
@@ -29,7 +31,7 @@ class _NoteEditSheetState extends State<NoteEditSheet> {
     _titleController = TextEditingController();
     _bodyController = TextEditingController();
 
-    if(widget.id !=  null) {
+    if (widget.id != null) {
       _titleController.text = widget.title!;
       _bodyController.text = widget.body!;
     }
@@ -66,20 +68,24 @@ class _NoteEditSheetState extends State<NoteEditSheet> {
               onPressed: () async {
                 showLoader(context);
 
-                var res;
-                if(widget.id == null) {
-                  res = await NotesController().addNote(
+                dynamic res;
+                if (widget.id == null) {
+                  res = await context.read<NotesCubit>().addNote(
                       title: _titleController.text.trim(),
                       body: _bodyController.text.trim());
                 } else {
-                  res = await NotesController().updateNote(noteId: widget.id!, title: _titleController.text.trim(),
+                  res = await context.read<NotesCubit>().updateNote(
+                      noteId: widget.id!,
+                      title: _titleController.text.trim(),
                       body: _bodyController.text.trim());
                 }
+
+                setState(() {});
 
                 hideLoader(context);
                 Navigator.pop(context);
 
-                notifyUser(context, res);
+                notifyUser(context, res.result);
               },
               text: 'Save',
             ),

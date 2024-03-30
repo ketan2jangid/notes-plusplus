@@ -1,11 +1,10 @@
 import 'dart:developer';
 
 import 'package:app/features/authentication/data/auth_repo.dart';
-import 'package:app/models/user_model.dart';
+import 'package:app/features/authentication/domain/user_model.dart';
 import 'package:app/storage/local_storage.dart';
 
-
-class AuthController{
+class AuthController {
   String token = '';
   final AuthRepository _repo = AuthRepository();
 
@@ -47,4 +46,3 @@ class AuthController{
     }
   }
 }
-
