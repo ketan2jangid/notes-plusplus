@@ -48,7 +48,8 @@ async function createNotes(req, res) {
             
             if(updated) {
                 return res.status(201).json({
-                    msg: "New note added successfully"
+                    msg: "New note added successfully",
+                    data: newNote
                 });
             } else {
                 return res.status(500).json({
@@ -79,7 +80,8 @@ async function updateNotes(req, res) {
 
         if(updated) {
             return res.json({
-                msg: "Note updated successfully"
+                msg: "Note updated successfully",
+                update: updated
             });
         } else {
             return res.status(500).json({
