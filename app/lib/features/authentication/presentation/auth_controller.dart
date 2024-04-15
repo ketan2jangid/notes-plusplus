@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:app/features/authentication/data/auth_repo.dart';
-import 'package:app/features/authentication/domain/user_model.dart';
+import 'package:app/features/authentication/domain/user.dart';
 import 'package:app/storage/local_storage.dart';
 
 class AuthController {
@@ -34,9 +34,7 @@ class AuthController {
       log("complete");
       log(res.toString());
 
-      // token = res['token'];
-      await LocalStorage.setUserToken(res['token']);
-      await LocalStorage.setUserEmail(res['userData']['email']);
+      await LocalStorage.setAppUser(User.fromJson(res['userData']));
 
       return res['msg'];
     } catch (e) {

@@ -69,9 +69,9 @@ async function loginUser(req, res) {
 
                 return res.status(200).json({
                     msg: "login successful",
-                    token: token,
                     userData: {
                         "id": user._id,
+                        "token": token,
                         "email": user.email,
                         "isVerified": user.isVerified,
                         "notes": user.notes
