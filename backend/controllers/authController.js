@@ -19,6 +19,7 @@ async function registerUser(req, res) {
 
         if (exist) {
             return res.status(409).json({
+                success: false,
                 msg: "User with email already exists"
             });
         } else {
@@ -29,7 +30,8 @@ async function registerUser(req, res) {
 
             if (!e.success || !p.success) {
                 return res.status(400).json({
-                    msg: "check email or password format"
+                    success: false,
+                    msg: "check email/password format"
                 });
             }
 
@@ -39,6 +41,7 @@ async function registerUser(req, res) {
             });
 
             res.status(201).json({
+                success: true,
                 msg: "User created successfully"
             });
         }
@@ -57,6 +60,7 @@ async function loginUser(req, res) {
 
         if (!user) {
             return res.status(404).json({
+                success: false,
                 msg: "user not found"
             });
         } else {
@@ -68,17 +72,21 @@ async function loginUser(req, res) {
                 }, USER_SECRET);
 
                 return res.status(200).json({
+                    success: true,
                     msg: "login successful",
-                    token: token,
-                    userData: {
-                        "id": user._id,
-                        "email": user.email,
-                        "isVerified": user.isVerified,
-                        "notes": user.notes
+                    data: {
+                        userData: {
+                            "id": user._id,
+                            "token": token,
+                            "email": user.email,
+                            "isVerified": user.isVerified,
+                            "notes": user.notes
+                        }
                     }
                 });
             } else {
                 return res.status(400).json({
+                    success: false,
                     msg: "incorrect password"
                 })
             }
