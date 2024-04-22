@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:app/common/api_response.dart';
 import 'package:app/features/notes/data/notes_repo.dart';
 import 'package:app/features/notes/domain/note_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,11 +12,11 @@ class NotesCubit extends Cubit<List<NoteModel>> {
 
   Future<({bool success, String result})> getAllNotes() async {
     try {
-      final res = await _repo.fetchAllNotes();
+      final ApiResponse res = await _repo.fetchAllNotes();
 
-      if (res['msg'] == "Notes retrieved successfully") {
+      if (res.success == true) {
         List<NoteModel> notes = <NoteModel>[];
-        var data = res['notes'];
+        var data = res.data['notes'];
 
         data.forEach((note) => notes.add(NoteModel.fromJson(note)));
 
@@ -23,7 +24,7 @@ class NotesCubit extends Cubit<List<NoteModel>> {
 
         return (success: true, result: "");
       } else {
-        return (success: false, result: res['msg'].toString());
+        return (success: false, result: res.msg.toString());
       }
     } catch (e) {
       log(e.toString());
@@ -35,14 +36,14 @@ class NotesCubit extends Cubit<List<NoteModel>> {
   Future<({bool success, String result})> addNote(
       {required String title, required String body}) async {
     try {
-      final res = await _repo.addNote(title: title, body: body);
+      final ApiResponse res = await _repo.addNote(title: title, body: body);
 
-      if (res['msg'] == "New note added successfully") {
-        emit([...state, NoteModel.fromJson(res['data'])]);
+      if (res.success == true) {
+        emit([...state, NoteModel.fromJson(res.data['newNote'])]);
 
-        return (success: false, result: "");
+        return (success: true, result: "");
       } else {
-        return (success: false, result: res['msg'].toString());
+        return (success: false, result: res.msg.toString());
       }
     } catch (e) {
       log(e.toString());
@@ -56,10 +57,10 @@ class NotesCubit extends Cubit<List<NoteModel>> {
       required String title,
       required String body}) async {
     try {
-      final res =
+      final ApiResponse res =
           await _repo.updateNote(noteId: noteId, title: title, body: body);
 
-      if (res['msg'] == "Note updated successfully") {
+      if (res.success == true) {
         List<NoteModel> notesUpdated = List.from(state);
 
         int index = notesUpdated.indexWhere((element) => element.id == noteId);
@@ -83,7 +84,7 @@ class NotesCubit extends Cubit<List<NoteModel>> {
 
         return (success: true, result: "");
       } else {
-        return (success: false, result: res['msg'].toString());
+        return (success: false, result: res.msg.toString());
       }
     } catch (e) {
       log(e.toString());
@@ -97,7 +98,7 @@ class NotesCubit extends Cubit<List<NoteModel>> {
     try {
       final res = await _repo.deleteNote(noteId: noteId);
 
-      if (res['msg'] == "note deleted successfully") {
+      if (res.success == true) {
         List<NoteModel> notes = state;
 
         notes.removeWhere((element) => element.id == noteId);
@@ -106,7 +107,7 @@ class NotesCubit extends Cubit<List<NoteModel>> {
 
         return (success: true, result: "");
       } else {
-        return (success: false, result: res['msg'].toString());
+        return (success: false, result: res.msg.toString());
       }
     } catch (e) {
       log(e.toString());

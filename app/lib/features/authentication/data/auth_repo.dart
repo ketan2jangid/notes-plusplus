@@ -46,6 +46,9 @@ class AuthRepository {
 
       log(res.toString());
 
+      log("### JSON ###");
+      log(jsonDecode(res.body).toString());
+
       return ApiResponse.fromJson(jsonDecode(res.body));
 
       // if (res.statusCode == 201) {
