@@ -20,8 +20,11 @@ async function getNotes(req, res) {
         console.log(allNotes);
 
         res.status(200).json({
+            success: true,
             msg: "Notes retrieved successfully",
-            notes: allNotes
+            data: {
+                notes: allNotes
+            }
         })
     } catch (err) {
         console.error(err);
@@ -48,16 +51,21 @@ async function createNotes(req, res) {
             
             if(updated) {
                 return res.status(201).json({
+                    success: true,
                     msg: "New note added successfully",
-                    data: newNote
+                    data: {
+                        newNote: newNote
+                    }
                 });
             } else {
                 return res.status(500).json({
+                    success: false,
                     msg: "Something went wrong"
                 });
             }
         } else {
             return res.status(500).json({
+                success: false,
                 msg: "Something went wrong"
             });
         }
@@ -80,11 +88,15 @@ async function updateNotes(req, res) {
 
         if(updated) {
             return res.json({
+                success: true,
                 msg: "Note updated successfully",
-                update: updated
+                data: {
+                    update: updated
+                }
             });
         } else {
             return res.status(500).json({
+                success: false,
                 msg: "Something went wrong"
             });
         }
@@ -118,6 +130,7 @@ async function deleteNotes(req, res) {
 
 
         return res.status(200).json({
+            success: true,
             msg: "note deleted successfully"
         });
     } catch (err) {

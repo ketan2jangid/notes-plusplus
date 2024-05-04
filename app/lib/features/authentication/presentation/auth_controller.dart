@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:app/common/api_response.dart';
 import 'package:app/features/authentication/data/auth_repo.dart';
 import 'package:app/features/authentication/domain/user.dart';
 import 'package:app/storage/local_storage.dart';
@@ -12,12 +13,13 @@ class AuthController {
       {required String email, required String password}) async {
     try {
       log("hererer");
-      final res = await _repo.registerUser(email: email, password: password);
+      final ApiResponse res =
+          await _repo.registerUser(email: email, password: password);
 
       log("complete");
       log(res.toString());
 
-      return res['msg'];
+      return res.msg!;
     } catch (e) {
       log(e.toString());
 
@@ -29,14 +31,24 @@ class AuthController {
       {required String email, required String password}) async {
     try {
       log("hererer");
-      final res = await _repo.loginUser(email: email, password: password);
+      final ApiResponse res =
+          await _repo.loginUser(email: email, password: password);
 
       log("complete");
-      log(res.toString());
+      log(res.success.toString() +
+          '\n' +
+          res.msg.toString() +
+          '\n' +
+          res.data.toString());
 
-      await LocalStorage.setAppUser(User.fromJson(res['userData']));
+      // token = res['token'];
+      // await LocalStorage.setUserToken(res['token']);
+      // await LocalStorage.setUserEmail(res['userData']['email']);
 
-      return res['msg'];
+      log(res.data.toString());
+      await LocalStorage.setAppUser(User.fromJson(res.data['userData']));
+
+      return res.msg!;
     } catch (e) {
       log(e.toString());
 
