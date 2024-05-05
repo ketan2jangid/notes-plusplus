@@ -9,9 +9,11 @@ import 'package:app/common/notify_user.dart';
 import 'package:app/features/authentication/presentation/auth_controller.dart';
 import 'package:app/features/authentication/presentation/registration_screen.dart';
 import 'package:app/features/notes/presentation/home_screen.dart';
+import 'package:app/state_management/notes/notes_cubit.dart';
 import 'package:app/storage/local_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -33,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
+    // context.read<NotesCubit>().clear();
   }
 
   @override
@@ -63,7 +66,17 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               Flexible(
-                child: Container(),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Notes++',
+                    style: GoogleFonts.jost(
+                      color: buttonWhite,
+                      fontSize: 48,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ),
               Expanded(
                 child: Container(
@@ -80,6 +93,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             CommonInputField(
                               controller: _emailController,
                               type: FieldType.email,
+                              onEditingComplete: () {
+                                FocusScope.of(context).nextFocus();
+                              },
                             ),
                             Gap(12),
                             Label(text: 'Password'),
@@ -88,6 +104,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               controller: _passwordController,
                               isPassword: true,
                               type: FieldType.password,
+                              onEditingComplete: () {
+                                FocusScope.of(context).nextFocus();
+                              },
                             ),
                             Gap(12),
                             Center(
@@ -128,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                       ),
-                      Gap(8),
+                      Gap(12),
                       Center(
                         child: RichText(
                           text: TextSpan(children: [

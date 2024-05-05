@@ -10,6 +10,10 @@ class NotesCubit extends Cubit<List<NoteModel>> {
 
   NotesCubit() : super([]);
 
+  Future<void> clear() async {
+    emit([]);
+  }
+
   Future<({bool success, String result})> getAllNotes() async {
     try {
       final ApiResponse res = await _repo.fetchAllNotes();

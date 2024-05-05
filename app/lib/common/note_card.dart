@@ -8,55 +8,59 @@ class NoteCard extends StatelessWidget {
   bool isSelected;
   final String title;
   final String body;
-  NoteCard({super.key, required this.title, required this.body, this.isSelected = false, this.counter = 0});
+  NoteCard(
+      {super.key,
+      required this.title,
+      required this.body,
+      this.isSelected = false,
+      this.counter = 0});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Container(
-          height: 100,
-          width: 100,
-          padding: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade800, width: 2),
-              borderRadius: BorderRadius.circular(24),),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(flex: 1, child: Text(title, style: titleStyle, maxLines: 2, overflow: TextOverflow.ellipsis,),),
-              const Gap(12),
-              Expanded(flex: 3, child: Text(body, style: bodyStyle, maxLines: 4, overflow: TextOverflow.ellipsis,),),
-            ],
-          ),
+    return Container(
+      height: 100,
+      width: 100,
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: isSelected ? buttonWhite : Colors.grey.shade800,
+          width: isSelected ? 2 : 1,
         ),
-        if (isSelected)
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.7),
-              border: Border.all(
-                  color: Colors.red.shade700, width: 2),
-              borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          if (title.isNotEmpty)
+            Expanded(
+              flex: 1,
+              child: Text(
+                title,
+                style: titleStyle,
+                // maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            child: Icon(Icons.delete_outline_rounded, color: buttonWhite, size: 36,),
-          )
-      ],
+          if (body.isNotEmpty) ...[
+            const Gap(6),
+            Expanded(
+              flex: 5,
+              child: Text(
+                body,
+                style: bodyStyle,
+                maxLines: 10,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ]
+        ],
+      ),
     );
   }
 }
 
 final titleStyle = GoogleFonts.jost(
-    color: buttonWhite,
-    fontSize: 20,
-    fontWeight: FontWeight.w600
-);
+    color: buttonWhite, fontSize: 20, fontWeight: FontWeight.w600);
 
 final bodyStyle = GoogleFonts.jost(
-    color: Colors.grey.shade400,
-    fontSize: 14,
-    fontWeight: FontWeight.w400
-);
-
-
+    color: Colors.grey.shade400, fontSize: 14, fontWeight: FontWeight.w400);

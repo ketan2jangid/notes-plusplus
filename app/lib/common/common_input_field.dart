@@ -7,12 +7,17 @@ enum FieldType { email, password, title, body }
 class CommonInputField extends StatefulWidget {
   final FieldType type;
   final TextEditingController? controller;
-  final bool isPassword;
-  const CommonInputField(
+  final Function()? onEditingComplete;
+  final FocusNode? focusNode;
+  bool isPassword;
+
+  CommonInputField(
       {super.key,
       this.isPassword = false,
       this.controller,
-      required this.type});
+      required this.type,
+      this.onEditingComplete,
+      this.focusNode});
 
   @override
   State<CommonInputField> createState() => _CommonInputFieldState();
@@ -25,12 +30,12 @@ class _CommonInputFieldState extends State<CommonInputField> {
       // email
       case FieldType.email:
         return TextFormField(
+          focusNode: widget.focusNode,
           controller: widget.controller,
           obscureText: widget.isPassword,
           cursorColor: buttonWhite,
           cursorErrorColor: Colors.red.shade700,
           validator: (val) {
-
             //  TODO: Add email validation
             if (val == null || val.isEmpty) {
               return "Email can't be empty";
@@ -38,9 +43,13 @@ class _CommonInputFieldState extends State<CommonInputField> {
 
             return null;
           },
+          onEditingComplete: widget.onEditingComplete,
+          textInputAction: TextInputAction.next,
           decoration: InputDecoration(
             enabledBorder: formEnabledBorder,
             focusedBorder: formFocusBorder,
+            disabledBorder: formEnabledBorder,
+            focusedErrorBorder: formErrorBorder,
             errorBorder: formErrorBorder,
             errorStyle: GoogleFonts.spaceMono(
               color: Colors.red.shade700,
@@ -52,6 +61,7 @@ class _CommonInputFieldState extends State<CommonInputField> {
       // password
       case FieldType.password:
         return TextFormField(
+          focusNode: widget.focusNode,
           controller: widget.controller,
           obscureText: widget.isPassword,
           cursorColor: buttonWhite,
@@ -63,9 +73,29 @@ class _CommonInputFieldState extends State<CommonInputField> {
 
             return null;
           },
+          onEditingComplete: widget.onEditingComplete,
+          textInputAction: TextInputAction.done,
           decoration: InputDecoration(
+            suffixIcon: IconButton(
+              onPressed: () {
+                setState(() {
+                  widget.isPassword = !widget.isPassword;
+                });
+              },
+              icon: widget.isPassword
+                  ? Icon(
+                      Icons.remove_red_eye_outlined,
+                      color: infoGrey,
+                    )
+                  : Icon(
+                      Icons.remove_red_eye,
+                      color: infoGrey,
+                    ),
+            ),
             enabledBorder: formEnabledBorder,
             focusedBorder: formFocusBorder,
+            disabledBorder: formEnabledBorder,
+            focusedErrorBorder: formErrorBorder,
             errorBorder: formErrorBorder,
             errorStyle: GoogleFonts.spaceMono(
               color: Colors.red.shade700,
@@ -77,6 +107,7 @@ class _CommonInputFieldState extends State<CommonInputField> {
       // notes title
       case FieldType.title:
         return TextFormField(
+          focusNode: widget.focusNode,
           controller: widget.controller,
           obscureText: widget.isPassword,
           cursorColor: buttonWhite,
@@ -84,21 +115,23 @@ class _CommonInputFieldState extends State<CommonInputField> {
           validator: (val) {
             return null;
           },
+          onEditingComplete: widget.onEditingComplete,
+          textInputAction: TextInputAction.next,
           decoration: InputDecoration(
-            enabledBorder: inputEnabledBorder,
-            focusedBorder: inputFocusBorder,
-            errorBorder: inputErrorBorder,
-            errorStyle: GoogleFonts.spaceMono(
-              color: Colors.red.shade700,
-              fontSize: 12,
-            ),
-            hintText: 'Note title'
-          ),
+              enabledBorder: inputEnabledBorder,
+              focusedBorder: inputFocusBorder,
+              errorBorder: inputErrorBorder,
+              errorStyle: GoogleFonts.spaceMono(
+                color: Colors.red.shade700,
+                fontSize: 12,
+              ),
+              hintText: 'Note title'),
         );
 
       // notes body
       case FieldType.body:
         return TextFormField(
+          focusNode: widget.focusNode,
           controller: widget.controller,
           obscureText: widget.isPassword,
           cursorColor: buttonWhite,
@@ -106,16 +139,17 @@ class _CommonInputFieldState extends State<CommonInputField> {
           validator: (val) {
             return null;
           },
+          onEditingComplete: widget.onEditingComplete,
+          textInputAction: TextInputAction.done,
           decoration: InputDecoration(
-            enabledBorder: inputEnabledBorder,
-            focusedBorder: InputBorder.none,
-            errorBorder: inputErrorBorder,
-            errorStyle: GoogleFonts.spaceMono(
-              color: Colors.red.shade700,
-              fontSize: 12,
-            ),
-            hintText: 'Note body'
-          ),
+              enabledBorder: inputEnabledBorder,
+              focusedBorder: inputFocusBorder,
+              errorBorder: inputErrorBorder,
+              errorStyle: GoogleFonts.spaceMono(
+                color: Colors.red.shade700,
+                fontSize: 12,
+              ),
+              hintText: 'Note body'),
           minLines: 3,
           maxLines: 10,
         );
@@ -130,7 +164,7 @@ final formEnabledBorder = OutlineInputBorder(
     color: Colors.grey.shade700,
     width: 2.0,
   ),
-  borderRadius: BorderRadius.circular(12),
+  borderRadius: BorderRadius.circular(8),
 );
 
 final formFocusBorder = OutlineInputBorder(
@@ -151,27 +185,26 @@ final formErrorBorder = OutlineInputBorder(
 
 // notes edit styles
 
-final inputEnabledBorder = UnderlineInputBorder(
+final inputEnabledBorder = OutlineInputBorder(
   borderSide: BorderSide(
-    color: Colors.grey.shade700,
+    color: Colors.grey.shade800,
     width: 2.0,
   ),
-  // borderRadius: BorderRadius.circular(12),
+  borderRadius: BorderRadius.circular(8),
 );
 
-final inputFocusBorder = UnderlineInputBorder(
+final inputFocusBorder = OutlineInputBorder(
   borderSide: BorderSide(
-    color: Colors.grey.shade400,
+    color: Colors.grey.shade800,
     width: 2.0,
   ),
-  // borderRadius: BorderRadius.circular(8),
+  borderRadius: BorderRadius.circular(8),
 );
 
-final inputErrorBorder = UnderlineInputBorder(
+final inputErrorBorder = OutlineInputBorder(
   borderSide: BorderSide(
     color: Colors.red.shade700,
     width: 2.0,
   ),
-  // borderRadius: BorderRadius.circular(8),
+  borderRadius: BorderRadius.circular(8),
 );
-

@@ -55,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // final notesCubit = BlocProvider.of<NotesCubit>(context);
     final notesCubit = context.watch<NotesCubit>();
 
+    // TODO: SHOW VERIFY MAIL NOTE UNTIL EMAIL IS VERIFIED
     return Scaffold(
       key: scaffoldKey,
       endDrawer: NavigationDrawer(
@@ -95,9 +96,28 @@ class _HomeScreenState extends State<HomeScreen> {
               ListTile(
                 onTap: () async {
                   showLoader(context);
-                  await LocalStorage.clearData();
+
+                  await Future.delayed(
+                    Duration(seconds: 1),
+                  );
 
                   hideLoader(context);
+                },
+                leading: Icon(
+                  Icons.mail_outline_rounded,
+                  color: Colors.grey.shade400,
+                ),
+                title: Text(
+                  'Verify email',
+                  style: GoogleFonts.jost(
+                    color: Colors.grey.shade400,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              ListTile(
+                onTap: () async {
+                  showLoader(context);
 
                   Navigator.pushAndRemoveUntil(
                       context,
@@ -105,13 +125,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         builder: (context) => LoginScreen(),
                       ),
                       (route) => false);
+
+                  await Future.delayed(
+                    Duration(milliseconds: 500),
+                  );
+
+                  await LocalStorage.clearData();
+                  notesCubit.clear();
+
+                  // hideLoader(context);
                 },
                 leading: Icon(
                   Icons.logout,
                   color: Colors.red.shade700,
                 ),
                 title: Text(
-                  'logout',
+                  'Logout',
                   style: GoogleFonts.jost(
                     color: Colors.grey.shade400,
                     fontWeight: FontWeight.w500,
@@ -135,15 +164,32 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: NoteEditSheet(),
                         ));
               }
-            : () => setState(() {
+            : () async {
+                showLoader(context);
+                // log('note will be deleted ' + notes![index]['title']);
+
+                final res = await context
+                    .read<NotesCubit>()
+                    .deleteNote(noteId: notesCubit.state[selectedNote].id!);
+
+                hideLoader(context);
+
+                setState(() {
                   selectedNote = -1;
-                }),
+                });
+
+                notifyUser(context, res.result);
+              },
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-            side: BorderSide(color: Colors.grey.shade700)),
+          borderRadius: BorderRadius.circular(30),
+          side: BorderSide(
+            color:
+                selectedNote == -1 ? Colors.grey.shade700 : Colors.red.shade700,
+          ),
+        ),
         child: Icon(
-          selectedNote == -1 ? Icons.add : Icons.close,
-          color: buttonWhite,
+          selectedNote == -1 ? Icons.add : Icons.delete,
+          color: selectedNote == -1 ? buttonWhite : Colors.red.shade700,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -194,7 +240,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: notesCubit.state.length,
                     itemBuilder: (context, index) {
                       return GestureDetector(
-                        onTap: (selectedNote != index)
+                        onTap: (selectedNote == -1)
+                            // open sheet for editing
                             ? () {
                                 showModalBottomSheet(
                                     isScrollControlled: true,
@@ -212,23 +259,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ));
                               }
-                            : () async {
-                                showLoader(context);
-                                // log('note will be deleted ' + notes![index]['title']);
-
-                                final res = await context
-                                    .read<NotesCubit>()
-                                    .deleteNote(
-                                        noteId: notesCubit.state[index].id!);
-
-                                hideLoader(context);
-
-                                setState(() {
-                                  selectedNote = -1;
-                                });
-
-                                notifyUser(context, res.result);
-                              },
+                            // deselect note
+                            : (selectedNote == index)
+                                ? () => setState(() {
+                                      selectedNote = -1;
+                                    })
+                                // select the taped note
+                                : () => setState(() {
+                                      selectedNote = index;
+                                    }),
                         onLongPress: () {
                           setState(() {
                             selectedNote = (selectedNote == index) ? -1 : index;

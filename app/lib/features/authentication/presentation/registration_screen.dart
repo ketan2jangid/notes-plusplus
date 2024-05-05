@@ -60,7 +60,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             children: [
               Flexible(
-                child: Container(),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Notes++',
+                    style: GoogleFonts.jost(
+                      color: buttonWhite,
+                      fontSize: 48,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ),
               Expanded(
                 child: Container(
@@ -115,7 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ],
                         ),
                       ),
-                      const Gap(8),
+                      Gap(12),
                       RichText(
                         text: TextSpan(children: [
                           TextSpan(

@@ -49,6 +49,7 @@ class _NoteEditSheetState extends State<NoteEditSheet> {
   Widget build(BuildContext context) {
     return Container(
       height: 400,
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
         color: appBackgroundColor,
         borderRadius: BorderRadius.only(
@@ -60,7 +61,10 @@ class _NoteEditSheetState extends State<NoteEditSheet> {
         children: [
           CommonInputField(controller: _titleController, type: FieldType.title),
           Gap(12),
-          CommonInputField(controller: _bodyController, type: FieldType.body),
+          ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 180),
+              child: CommonInputField(
+                  controller: _bodyController, type: FieldType.body)),
           Spacer(),
           Padding(
             padding: const EdgeInsets.all(12.0),
