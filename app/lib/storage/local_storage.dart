@@ -10,6 +10,7 @@ class LocalStorage {
   static String? get userEmail => userData!.get(StorageKeys.appUser)?.email;
   static bool? get isUserVerified =>
       userData!.get(StorageKeys.appUser)!.isVerified;
+  static User? get userProfile => userData!.get(StorageKeys.appUser);
 
   static Future<void> initialize() async {
     await Hive.initFlutter();

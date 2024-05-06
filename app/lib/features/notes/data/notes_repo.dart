@@ -30,12 +30,14 @@ class NotesRepo {
   Future<ApiResponse> addNote(
       {required String title, required String body}) async {
     try {
-      final res = await http.post(Uri.parse("${Endpoints.notes}"),
-          headers: {
-            'authentication': LocalStorage.userToken!,
-            "Content-Type": "application/json"
-          },
-          body: jsonEncode({"title": title, "body": body}));
+      final res = await http.post(
+        Uri.parse("${Endpoints.notes}"),
+        headers: {
+          'authentication': LocalStorage.userToken!,
+          "Content-Type": "application/json"
+        },
+        body: jsonEncode({"title": title, "body": body}),
+      );
 
       log("########### ADD #########");
       log(res.toString());

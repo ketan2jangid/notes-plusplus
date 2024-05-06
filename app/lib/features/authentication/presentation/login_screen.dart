@@ -127,7 +127,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       password: _passwordController.text);
 
                                   log("***** " + res + " *****");
-                                  // TODO: If login successful, navigate to another screen
 
                                   hideLoader(context);
                                   if (res == "login successful") {

@@ -1,16 +1,20 @@
 import 'dart:developer';
 
 import 'package:app/common/app_colors.dart';
+import 'package:app/common/block_button.dart';
 import 'package:app/common/loader.dart';
 import 'package:app/common/new_note_sheet.dart';
 import 'package:app/common/note_card.dart';
 import 'package:app/common/notify_user.dart';
+import 'package:app/features/profile/presentation/otp_sheet.dart';
 import 'package:app/features/authentication/presentation/login_screen.dart';
 import 'package:app/features/notes/presentation/notes_controller.dart';
+import 'package:app/features/profile/presentation/profile_controller.dart';
 import 'package:app/state_management/notes/notes_cubit.dart';
 import 'package:app/storage/local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../domain/note_model.dart';
@@ -26,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   List? notes;
   int selectedNote = -1;
+  final ProfileController _profileController = ProfileController();
 
   @override
   void initState() {
@@ -56,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final notesCubit = context.watch<NotesCubit>();
 
     // TODO: SHOW VERIFY MAIL NOTE UNTIL EMAIL IS VERIFIED
+    // TODO: Add README.md file in root
     return Scaffold(
       key: scaffoldKey,
       endDrawer: NavigationDrawer(
@@ -93,28 +99,28 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Column(
             children: [
-              ListTile(
-                onTap: () async {
-                  showLoader(context);
-
-                  await Future.delayed(
-                    Duration(seconds: 1),
-                  );
-
-                  hideLoader(context);
-                },
-                leading: Icon(
-                  Icons.mail_outline_rounded,
-                  color: Colors.grey.shade400,
-                ),
-                title: Text(
-                  'Verify email',
-                  style: GoogleFonts.jost(
-                    color: Colors.grey.shade400,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
+              // ListTile(
+              //   onTap: () async {
+              //     showLoader(context);
+              //
+              //     await Future.delayed(
+              //       Duration(seconds: 1),
+              //     );
+              //
+              //     hideLoader(context);
+              //   },
+              //   leading: Icon(
+              //     Icons.mail_outline_rounded,
+              //     color: Colors.grey.shade400,
+              //   ),
+              //   title: Text(
+              //     'Verify email',
+              //     style: GoogleFonts.jost(
+              //       color: Colors.grey.shade400,
+              //       fontWeight: FontWeight.w500,
+              //     ),
+              //   ),
+              // ),
               ListTile(
                 onTap: () async {
                   showLoader(context);
@@ -151,47 +157,51 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: appBackgroundColor,
-        onPressed: selectedNote == -1
-            ? () {
-                showModalBottomSheet(
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (context) => Padding(
-                          padding: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).viewInsets.bottom),
-                          child: NoteEditSheet(),
-                        ));
-              }
-            : () async {
-                showLoader(context);
-                // log('note will be deleted ' + notes![index]['title']);
+      floatingActionButton: LocalStorage.isUserVerified == false
+          ? null
+          : FloatingActionButton(
+              backgroundColor: appBackgroundColor,
+              onPressed: selectedNote == -1
+                  ? () {
+                      showModalBottomSheet(
+                          isScrollControlled: true,
+                          context: context,
+                          builder: (context) => Padding(
+                                padding: EdgeInsets.only(
+                                    bottom: MediaQuery.of(context)
+                                        .viewInsets
+                                        .bottom),
+                                child: NoteEditSheet(),
+                              ));
+                    }
+                  : () async {
+                      showLoader(context);
+                      // log('note will be deleted ' + notes![index]['title']);
 
-                final res = await context
-                    .read<NotesCubit>()
-                    .deleteNote(noteId: notesCubit.state[selectedNote].id!);
+                      final res = await context.read<NotesCubit>().deleteNote(
+                          noteId: notesCubit.state[selectedNote].id!);
 
-                hideLoader(context);
+                      hideLoader(context);
 
-                setState(() {
-                  selectedNote = -1;
-                });
+                      setState(() {
+                        selectedNote = -1;
+                      });
 
-                notifyUser(context, res.result);
-              },
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-          side: BorderSide(
-            color:
-                selectedNote == -1 ? Colors.grey.shade700 : Colors.red.shade700,
-          ),
-        ),
-        child: Icon(
-          selectedNote == -1 ? Icons.add : Icons.delete,
-          color: selectedNote == -1 ? buttonWhite : Colors.red.shade700,
-        ),
-      ),
+                      notifyUser(context, res.result);
+                    },
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+                side: BorderSide(
+                  color: selectedNote == -1
+                      ? Colors.grey.shade700
+                      : Colors.red.shade700,
+                ),
+              ),
+              child: Icon(
+                selectedNote == -1 ? Icons.add : Icons.delete,
+                color: selectedNote == -1 ? buttonWhite : Colors.red.shade700,
+              ),
+            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: SafeArea(
         child: CustomScrollView(
@@ -225,67 +235,120 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 16.0,
-                            crossAxisSpacing: 12,
-                            childAspectRatio: 8 / 11),
-                    itemCount: notesCubit.state.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: (selectedNote == -1)
-                            // open sheet for editing
-                            ? () {
-                                showModalBottomSheet(
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (context) => Padding(
-                                          padding: EdgeInsets.only(
-                                              bottom: MediaQuery.of(context)
-                                                  .viewInsets
-                                                  .bottom),
-                                          child: NoteEditSheet(
-                                            id: notesCubit.state[index].id,
-                                            title:
-                                                notesCubit.state[index].title,
-                                            body: notesCubit.state[index].body,
-                                          ),
-                                        ));
-                              }
-                            // deselect note
-                            : (selectedNote == index)
-                                ? () => setState(() {
-                                      selectedNote = -1;
-                                    })
-                                // select the taped note
-                                : () => setState(() {
-                                      selectedNote = index;
-                                    }),
-                        onLongPress: () {
-                          setState(() {
-                            selectedNote = (selectedNote == index) ? -1 : index;
-                          });
-                        },
-                        child: NoteCard(
-                          title: notesCubit.state[index].title!,
-                          body: notesCubit.state[index].body!,
-                          isSelected: (selectedNote == index),
-                          counter: 0,
-                        ),
-                      );
-                    }),
-              ),
-            )
+            LocalStorage.isUserVerified == false
+                ? SliverToBoxAdapter(
+                    child: Container(
+                      margin: EdgeInsets.symmetric(vertical: 24),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.lock,
+                            color: Colors.grey.shade400,
+                            size: 64,
+                          ),
+                          Gap(12),
+                          Text(
+                            'Verify your email to use Notes++',
+                            style: TextStyle(
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                          Gap(18),
+                          BlockButton(
+                            onPressed: () async {
+                              showLoader(context);
+                              // TODO: Send verification mail
+                              await _profileController.sendVerificationEmail();
+
+                              hideLoader(context);
+
+                              showModalBottomSheet(
+                                isDismissible: false,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (context) => Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: MediaQuery.of(context)
+                                          .viewInsets
+                                          .bottom),
+                                  child: OtpVerifySheet(),
+                                ),
+                              );
+                            },
+                            text: 'Verify Email',
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  mainAxisSpacing: 16.0,
+                                  crossAxisSpacing: 12,
+                                  childAspectRatio: 8 / 11),
+                          itemCount: notesCubit.state.length,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: (selectedNote == -1)
+                                  // open sheet for editing
+                                  ? () {
+                                      showModalBottomSheet(
+                                          isScrollControlled: true,
+                                          context: context,
+                                          builder: (context) => Padding(
+                                                padding: EdgeInsets.only(
+                                                    bottom:
+                                                        MediaQuery.of(context)
+                                                            .viewInsets
+                                                            .bottom),
+                                                child: NoteEditSheet(
+                                                  id: notesCubit
+                                                      .state[index].id,
+                                                  title: notesCubit
+                                                      .state[index].title,
+                                                  body: notesCubit
+                                                      .state[index].body,
+                                                ),
+                                              ));
+                                    }
+                                  // deselect note
+                                  : (selectedNote == index)
+                                      ? () => setState(() {
+                                            selectedNote = -1;
+                                          })
+                                      // select the taped note
+                                      : () => setState(() {
+                                            selectedNote = index;
+                                          }),
+                              onLongPress: () {
+                                setState(() {
+                                  selectedNote =
+                                      (selectedNote == index) ? -1 : index;
+                                });
+                              },
+                              child: NoteCard(
+                                title: notesCubit.state[index].title!,
+                                body: notesCubit.state[index].body!,
+                                isSelected: (selectedNote == index),
+                                counter: 0,
+                              ),
+                            );
+                          }),
+                    ),
+                  )
           ],
         ),
       ),
     );
   }
 }
+
+// TODO: Load todos only for verified profile

@@ -2,7 +2,7 @@ import 'package:app/common/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-enum FieldType { email, password, title, body }
+enum FieldType { email, password, otp, title, body }
 
 class CommonInputField extends StatefulWidget {
   final FieldType type;
@@ -35,6 +35,7 @@ class _CommonInputFieldState extends State<CommonInputField> {
           obscureText: widget.isPassword,
           cursorColor: buttonWhite,
           cursorErrorColor: Colors.red.shade700,
+          keyboardType: TextInputType.emailAddress,
           validator: (val) {
             //  TODO: Add email validation
             if (val == null || val.isEmpty) {
@@ -92,6 +93,41 @@ class _CommonInputFieldState extends State<CommonInputField> {
                       color: infoGrey,
                     ),
             ),
+            enabledBorder: formEnabledBorder,
+            focusedBorder: formFocusBorder,
+            disabledBorder: formEnabledBorder,
+            focusedErrorBorder: formErrorBorder,
+            errorBorder: formErrorBorder,
+            errorStyle: GoogleFonts.spaceMono(
+              color: Colors.red.shade700,
+              fontSize: 12,
+            ),
+          ),
+        );
+
+      // otp
+      case FieldType.otp:
+        return TextFormField(
+          focusNode: widget.focusNode,
+          controller: widget.controller,
+          obscureText: widget.isPassword,
+          cursorColor: buttonWhite,
+          cursorErrorColor: Colors.red.shade700,
+          maxLength: 6,
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          validator: (val) {
+            if (val == null || val.isEmpty || val.length != 6) {
+              return "Enter 6 digit OTP";
+            }
+
+            return null;
+          },
+          onEditingComplete: widget.onEditingComplete,
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(
+            hintText: " - - - - - - ",
+            counterText: "",
             enabledBorder: formEnabledBorder,
             focusedBorder: formFocusBorder,
             disabledBorder: formEnabledBorder,
