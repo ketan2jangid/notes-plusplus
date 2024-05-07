@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:app/common/api_response.dart';
@@ -17,6 +18,13 @@ class ProfileController {
       } else {
         return (success: false, result: res.msg.toString());
       }
+    } on TimeoutException catch (t) {
+      log("Timeout Error: Can't connect to server");
+
+      return (
+        success: false,
+        result: "(Timeout Error) Can't connect to server"
+      );
     } catch (e) {
       log(e.toString());
 
@@ -40,6 +48,13 @@ class ProfileController {
       } else {
         return (success: false, result: res.msg.toString());
       }
+    } on TimeoutException catch (t) {
+      log("Timeout Error: Can't connect to server");
+
+      return (
+        success: false,
+        result: "(Timeout Error) Can't connect to server"
+      );
     } catch (e) {
       log(e.toString());
 

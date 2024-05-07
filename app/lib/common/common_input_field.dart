@@ -8,16 +8,19 @@ class CommonInputField extends StatefulWidget {
   final FieldType type;
   final TextEditingController? controller;
   final Function()? onEditingComplete;
+  final Function(String)? onChange;
   final FocusNode? focusNode;
   bool isPassword;
 
-  CommonInputField(
-      {super.key,
-      this.isPassword = false,
-      this.controller,
-      required this.type,
-      this.onEditingComplete,
-      this.focusNode});
+  CommonInputField({
+    super.key,
+    this.isPassword = false,
+    this.controller,
+    required this.type,
+    this.onEditingComplete,
+    this.onChange,
+    this.focusNode,
+  });
 
   @override
   State<CommonInputField> createState() => _CommonInputFieldState();
@@ -44,6 +47,7 @@ class _CommonInputFieldState extends State<CommonInputField> {
 
             return null;
           },
+          onChanged: widget.onChange,
           onEditingComplete: widget.onEditingComplete,
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
@@ -74,6 +78,7 @@ class _CommonInputFieldState extends State<CommonInputField> {
 
             return null;
           },
+          onChanged: widget.onChange,
           onEditingComplete: widget.onEditingComplete,
           textInputAction: TextInputAction.done,
           decoration: InputDecoration(
@@ -123,6 +128,7 @@ class _CommonInputFieldState extends State<CommonInputField> {
 
             return null;
           },
+          onChanged: widget.onChange,
           onEditingComplete: widget.onEditingComplete,
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
@@ -151,6 +157,7 @@ class _CommonInputFieldState extends State<CommonInputField> {
           validator: (val) {
             return null;
           },
+          onChanged: widget.onChange,
           onEditingComplete: widget.onEditingComplete,
           textInputAction: TextInputAction.next,
           decoration: InputDecoration(
@@ -175,6 +182,7 @@ class _CommonInputFieldState extends State<CommonInputField> {
           validator: (val) {
             return null;
           },
+          onChanged: widget.onChange,
           onEditingComplete: widget.onEditingComplete,
           textInputAction: TextInputAction.done,
           decoration: InputDecoration(
@@ -244,3 +252,5 @@ final inputErrorBorder = OutlineInputBorder(
   ),
   borderRadius: BorderRadius.circular(8),
 );
+
+// TODO: Add onChanged

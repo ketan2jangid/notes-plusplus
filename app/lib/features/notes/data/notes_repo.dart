@@ -10,9 +10,10 @@ import 'package:http/http.dart' as http;
 class NotesRepo {
   Future<ApiResponse> fetchAllNotes() async {
     try {
-      final res = await http.get(
-          Uri.parse("${Endpoints.notes}${Endpoints.getAll}"),
-          headers: {'authentication': LocalStorage.userToken!});
+      final res = await http
+          .get(Uri.parse("${Endpoints.notes}${Endpoints.getAll}"), headers: {
+        'authentication': LocalStorage.userToken!
+      }).timeout(Duration(seconds: 7));
 
       log("########### NOTES #########");
       log(res.toString());
@@ -30,14 +31,16 @@ class NotesRepo {
   Future<ApiResponse> addNote(
       {required String title, required String body}) async {
     try {
-      final res = await http.post(
-        Uri.parse("${Endpoints.notes}"),
-        headers: {
-          'authentication': LocalStorage.userToken!,
-          "Content-Type": "application/json"
-        },
-        body: jsonEncode({"title": title, "body": body}),
-      );
+      final res = await http
+          .post(
+            Uri.parse("${Endpoints.notes}"),
+            headers: {
+              'authentication': LocalStorage.userToken!,
+              "Content-Type": "application/json"
+            },
+            body: jsonEncode({"title": title, "body": body}),
+          )
+          .timeout(Duration(seconds: 7));
 
       log("########### ADD #########");
       log(res.toString());
@@ -57,12 +60,14 @@ class NotesRepo {
       required String title,
       required String body}) async {
     try {
-      final res = await http.put(Uri.parse("${Endpoints.notes}${noteId}"),
-          headers: {
-            'authentication': LocalStorage.userToken!,
-            "Content-Type": "application/json"
-          },
-          body: jsonEncode({"title": title, "body": body}));
+      final res = await http
+          .put(Uri.parse("${Endpoints.notes}${noteId}"),
+              headers: {
+                'authentication': LocalStorage.userToken!,
+                "Content-Type": "application/json"
+              },
+              body: jsonEncode({"title": title, "body": body}))
+          .timeout(Duration(seconds: 7));
 
       log("########### UPDATE #########");
       log(res.toString());
@@ -80,7 +85,9 @@ class NotesRepo {
   Future<ApiResponse> deleteNote({required String noteId}) async {
     try {
       final res = await http.delete(Uri.parse("${Endpoints.notes}${noteId}"),
-          headers: {'authentication': LocalStorage.userToken!});
+          headers: {
+            'authentication': LocalStorage.userToken!
+          }).timeout(Duration(seconds: 7));
 
       log("########### DELETE #########");
       log(res.toString());

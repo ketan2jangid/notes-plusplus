@@ -35,7 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
-    // context.read<NotesCubit>().clear();
   }
 
   @override
@@ -79,104 +78,103 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               Expanded(
-                child: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Label(text: 'Email'),
-                            Gap(6),
-                            CommonInputField(
-                              controller: _emailController,
-                              type: FieldType.email,
-                              onEditingComplete: () {
-                                FocusScope.of(context).nextFocus();
-                              },
-                            ),
-                            Gap(12),
-                            Label(text: 'Password'),
-                            Gap(6),
-                            CommonInputField(
-                              controller: _passwordController,
-                              isPassword: true,
-                              type: FieldType.password,
-                              onEditingComplete: () {
-                                FocusScope.of(context).nextFocus();
-                              },
-                            ),
-                            Gap(12),
-                            Center(
-                              child: BlockButton(
-                                onPressed: () async {
-                                  log("button pressed");
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Label(text: 'Email'),
+                          Gap(6),
+                          CommonInputField(
+                            controller: _emailController,
+                            type: FieldType.email,
+                            onEditingComplete: () {
+                              FocusScope.of(context).nextFocus();
+                            },
+                          ),
+                          Gap(12),
+                          Label(text: 'Password'),
+                          Gap(6),
+                          CommonInputField(
+                            controller: _passwordController,
+                            isPassword: true,
+                            type: FieldType.password,
+                            onEditingComplete: () {
+                              FocusScope.of(context).nextFocus();
+                            },
+                          ),
+                          Gap(12),
+                          Center(
+                            child: BlockButton(
+                              onPressed: () async {
+                                // log("button pressed");
 
-                                  if (!_formKey.currentState!.validate()) {
-                                    return;
-                                  }
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
+                                }
 
-                                  showLoader(context);
+                                showLoader(context);
 
-                                  // await Future.delayed(Duration(seconds: 2));
+                                final res = await AuthController().loginUser(
+                                  email: _emailController.text,
+                                  password: _passwordController.text,
+                                );
 
-                                  final res = await AuthController().loginUser(
-                                      email: _emailController.text,
-                                      password: _passwordController.text);
+                                // log("***** " + res + " *****");
 
-                                  log("***** " + res + " *****");
-
-                                  hideLoader(context);
-                                  if (res == "login successful") {
-                                    Navigator.push(
+                                hideLoader(context);
+                                if (res.success == true) {
+                                  Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => HomeScreen(),
                                       ),
-                                    );
-                                  }
+                                      (route) => false);
 
-                                  notifyUser(context, res);
-                                },
-                                text: 'Login',
-                              ),
+                                  notifyUser(context, "Login successful");
+                                } else {
+                                  notifyUser(context, "Err:" + res.result);
+                                }
+                              },
+                              text: 'Login',
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      Gap(12),
-                      Center(
-                        child: RichText(
-                          text: TextSpan(children: [
-                            TextSpan(
-                              text: "Don't have an account? ",
-                              style: GoogleFonts.jost(
-                                color: buttonWhite,
-                                fontSize: 12,
-                              ),
+                    ),
+                    Gap(12),
+                    Center(
+                      child: RichText(
+                        text: TextSpan(children: [
+                          TextSpan(
+                            text: "Don't have an account? ",
+                            style: GoogleFonts.jost(
+                              color: buttonWhite,
+                              fontSize: 12,
                             ),
-                            TextSpan(
-                              text: "Register",
-                              style: GoogleFonts.jost(
-                                color: buttonWhite,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => RegisterScreen(),
-                                      ),
+                          ),
+                          TextSpan(
+                            text: "Register",
+                            style: GoogleFonts.jost(
+                              color: buttonWhite,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RegisterScreen(),
                                     ),
-                            ),
-                          ]),
-                        ),
+                                  ),
+                          ),
+                        ]),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],

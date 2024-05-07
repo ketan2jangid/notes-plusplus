@@ -12,7 +12,7 @@ class ProfileRepository {
       final http.Response res = await http.get(
         Uri.parse("${Endpoints.auth}${Endpoints.sendVerificationEmail}"),
         headers: {'authentication': LocalStorage.userToken!},
-      );
+      ).timeout(Duration(seconds: 7));
 
       log(res.toString());
 
@@ -24,14 +24,16 @@ class ProfileRepository {
 
   Future<ApiResponse> verifyOtp(String otp) async {
     try {
-      final http.Response res = await http.post(
-        Uri.parse("${Endpoints.auth}${Endpoints.verifyOtp}"),
-        headers: {
-          'authentication': LocalStorage.userToken!,
-          "Content-Type": "application/json"
-        },
-        body: jsonEncode({"otp": otp}),
-      );
+      final http.Response res = await http
+          .post(
+            Uri.parse("${Endpoints.auth}${Endpoints.verifyOtp}"),
+            headers: {
+              'authentication': LocalStorage.userToken!,
+              "Content-Type": "application/json"
+            },
+            body: jsonEncode({"otp": otp}),
+          )
+          .timeout(Duration(seconds: 7));
 
       log(res.toString());
 

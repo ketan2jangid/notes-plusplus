@@ -21,6 +21,7 @@ class NoteEditSheet extends StatefulWidget {
 }
 
 class _NoteEditSheetState extends State<NoteEditSheet> {
+  bool isUpdated = false;
   late final TextEditingController _titleController;
   late final TextEditingController _bodyController;
 
@@ -72,24 +73,29 @@ class _NoteEditSheetState extends State<NoteEditSheet> {
               onPressed: () async {
                 showLoader(context);
 
-                dynamic res;
+                final ({String result, bool success}) res;
                 if (widget.id == null) {
                   res = await context.read<NotesCubit>().addNote(
-                      title: _titleController.text.trim(),
-                      body: _bodyController.text.trim());
+                        title: _titleController.text.trim(),
+                        body: _bodyController.text.trim(),
+                      );
                 } else {
                   res = await context.read<NotesCubit>().updateNote(
-                      noteId: widget.id!,
-                      title: _titleController.text.trim(),
-                      body: _bodyController.text.trim());
+                        noteId: widget.id!,
+                        title: _titleController.text.trim(),
+                        body: _bodyController.text.trim(),
+                      );
                 }
-
-                setState(() {});
-
                 hideLoader(context);
                 Navigator.pop(context);
 
-                notifyUser(context, res.result);
+                if (res.success == true) {
+                  notifyUser(context, res.result);
+                } else {
+                  notifyUser(context, "Err:" + res.result);
+                }
+
+                setState(() {});
               },
               text: 'Save',
             ),
@@ -99,3 +105,5 @@ class _NoteEditSheetState extends State<NoteEditSheet> {
     );
   }
 }
+
+// TODO: update call only when something is updated

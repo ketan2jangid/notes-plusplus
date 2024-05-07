@@ -78,7 +78,7 @@ class _OtpVerifySheetState extends State<OtpVerifySheet> {
                   notifyUser(context, "Email verified");
                   setState(() {});
                 } else {
-                  notifyUser(context, res.result);
+                  notifyUser(context, "Err:" + res.result);
                 }
 
                 // notifyUser(context, res.result);

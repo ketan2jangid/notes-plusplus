@@ -42,17 +42,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getData() async {
     // notes = await NotesController().getAllNotes();
+    if (LocalStorage.isUserVerified != true) return;
+
     final res = await context.read<NotesCubit>().getAllNotes();
 
     if (res.success) {
       log("got notes");
+      setState(() {});
     } else {
-      notifyUser(context, res.result);
+      notifyUser(context, "Err:" + res.result);
     }
 
     // log(notes.toString());
-
-    setState(() {});
   }
 
   @override
@@ -60,7 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
     // final notesCubit = BlocProvider.of<NotesCubit>(context);
     final notesCubit = context.watch<NotesCubit>();
 
-    // TODO: SHOW VERIFY MAIL NOTE UNTIL EMAIL IS VERIFIED
     // TODO: Add README.md file in root
     return Scaffold(
       key: scaffoldKey,
@@ -99,31 +99,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Column(
             children: [
-              // ListTile(
-              //   onTap: () async {
-              //     showLoader(context);
-              //
-              //     await Future.delayed(
-              //       Duration(seconds: 1),
-              //     );
-              //
-              //     hideLoader(context);
-              //   },
-              //   leading: Icon(
-              //     Icons.mail_outline_rounded,
-              //     color: Colors.grey.shade400,
-              //   ),
-              //   title: Text(
-              //     'Verify email',
-              //     style: GoogleFonts.jost(
-              //       color: Colors.grey.shade400,
-              //       fontWeight: FontWeight.w500,
-              //     ),
-              //   ),
-              // ),
               ListTile(
                 onTap: () async {
                   showLoader(context);
+
+                  notifyUser(context, "Logout successfully");
 
                   Navigator.pushAndRemoveUntil(
                       context,
@@ -176,7 +156,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                   : () async {
                       showLoader(context);
-                      // log('note will be deleted ' + notes![index]['title']);
 
                       final res = await context.read<NotesCubit>().deleteNote(
                           noteId: notesCubit.state[selectedNote].id!);
@@ -258,23 +237,26 @@ class _HomeScreenState extends State<HomeScreen> {
                           BlockButton(
                             onPressed: () async {
                               showLoader(context);
-                              // TODO: Send verification mail
-                              await _profileController.sendVerificationEmail();
+                              final res = await _profileController
+                                  .sendVerificationEmail();
 
                               hideLoader(context);
-
-                              showModalBottomSheet(
-                                isDismissible: false,
-                                isScrollControlled: true,
-                                context: context,
-                                builder: (context) => Padding(
-                                  padding: EdgeInsets.only(
-                                      bottom: MediaQuery.of(context)
-                                          .viewInsets
-                                          .bottom),
-                                  child: OtpVerifySheet(),
-                                ),
-                              );
+                              if (res.success == true) {
+                                showModalBottomSheet(
+                                  isDismissible: false,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (context) => Padding(
+                                    padding: EdgeInsets.only(
+                                        bottom: MediaQuery.of(context)
+                                            .viewInsets
+                                            .bottom),
+                                    child: OtpVerifySheet(),
+                                  ),
+                                );
+                              } else {
+                                notifyUser(context, "Err:" + res.result);
+                              }
                             },
                             text: 'Verify Email',
                           ),
@@ -352,3 +334,4 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 // TODO: Load todos only for verified profile
+// TODO: Keys for res body

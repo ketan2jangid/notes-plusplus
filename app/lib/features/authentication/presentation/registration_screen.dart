@@ -73,81 +73,84 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               Expanded(
-                child: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Label(text: 'Email'),
-                            const Gap(6),
-                            CommonInputField(
-                              controller: _emailController,
-                              type: FieldType.email,
-                            ),
-                            const Gap(12),
-                            const Label(text: 'Password'),
-                            const Gap(6),
-                            CommonInputField(
-                              controller: _passwordController,
-                              isPassword: true,
-                              type: FieldType.password,
-                            ),
-                            const Gap(12),
-                            Center(
-                              child: BlockButton(
-                                onPressed: () async {
-                                  log("button pressed");
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Label(text: 'Email'),
+                          const Gap(6),
+                          CommonInputField(
+                            controller: _emailController,
+                            type: FieldType.email,
+                          ),
+                          const Gap(12),
+                          const Label(text: 'Password'),
+                          const Gap(6),
+                          CommonInputField(
+                            controller: _passwordController,
+                            isPassword: true,
+                            type: FieldType.password,
+                          ),
+                          const Gap(12),
+                          Center(
+                            child: BlockButton(
+                              onPressed: () async {
+                                // log("button pressed");
 
-                                  if (!_formKey.currentState!.validate()) {
-                                    return;
-                                  }
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
+                                }
 
-                                  showLoader(context);
+                                showLoader(context);
 
-                                  // await Future.delayed(Duration(seconds: 2));
+                                final res = await AuthController().registerUser(
+                                  email: _emailController.text,
+                                  password: _passwordController.text,
+                                );
 
-                                  final res = await AuthController()
-                                      .registerUser(
-                                          email: _emailController.text,
-                                          password: _passwordController.text);
-
-                                  notifyUser(context, res);
-
+                                if (res.success == true) {
                                   hideLoader(context);
-                                },
-                                text: 'Register',
-                              ),
+                                  notifyUser(
+                                      context, "Registration Successful");
+
+                                  Navigator.pop(context);
+                                } else {
+                                  hideLoader(context);
+                                  notifyUser(context, "Err:" + res.result);
+                                }
+                              },
+                              text: 'Register',
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      Gap(12),
-                      RichText(
-                        text: TextSpan(children: [
-                          TextSpan(
-                            text: "Already have an account? ",
+                    ),
+                    Gap(12),
+                    RichText(
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: "Already have an account? ",
+                          style: GoogleFonts.jost(
+                            color: buttonWhite,
+                            fontSize: 12,
+                          ),
+                        ),
+                        TextSpan(
+                            text: "Login",
                             style: GoogleFonts.jost(
                               color: buttonWhite,
                               fontSize: 12,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ),
-                          TextSpan(
-                              text: "Login",
-                              style: GoogleFonts.jost(
-                                color: buttonWhite,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => Navigator.pop(context)),
-                        ]),
-                      ),
-                    ],
-                  ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => Navigator.pop(context)),
+                      ]),
+                    ),
+                  ],
                 ),
               ),
             ],
