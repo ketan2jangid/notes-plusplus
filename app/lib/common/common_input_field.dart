@@ -1,5 +1,6 @@
 import 'package:app/common/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 enum FieldType { email, password, otp, title, body }
@@ -40,13 +41,19 @@ class _CommonInputFieldState extends State<CommonInputField> {
           cursorErrorColor: Colors.red.shade700,
           keyboardType: TextInputType.emailAddress,
           validator: (val) {
-            //  TODO: Add email validation
             if (val == null || val.isEmpty) {
               return "Email can't be empty";
             }
 
+            String pattern =
+                r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+            if (!RegExp(pattern).hasMatch(val.trim())) {
+              return "Invalid email";
+            }
+
             return null;
           },
+          inputFormatters: [],
           onChanged: widget.onChange,
           onEditingComplete: widget.onEditingComplete,
           textInputAction: TextInputAction.next,
@@ -252,5 +259,3 @@ final inputErrorBorder = OutlineInputBorder(
   ),
   borderRadius: BorderRadius.circular(8),
 );
-
-// TODO: Add onChanged

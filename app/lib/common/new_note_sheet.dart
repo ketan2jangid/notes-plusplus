@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:app/common/app_colors.dart';
 import 'package:app/common/block_button.dart';
 import 'package:app/common/common_input_field.dart';
@@ -8,6 +10,9 @@ import 'package:app/state_management/notes/notes_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+
+import 'alerts.dart';
+import 'check_internet.dart';
 
 class NoteEditSheet extends StatefulWidget {
   String? title;
@@ -71,6 +76,24 @@ class _NoteEditSheetState extends State<NoteEditSheet> {
             padding: const EdgeInsets.all(12.0),
             child: BlockButton(
               onPressed: () async {
+                if (((widget.title != null &&
+                        widget.title == _titleController.text.trim())) &&
+                    (widget.body != null &&
+                        widget.body == _bodyController.text.trim())) {
+                  Navigator.pop(context);
+
+                  return;
+                }
+
+                final bool con = await isConnected();
+                log("Connected: $con");
+
+                if (!con) {
+                  return showDialog(
+                      context: context,
+                      builder: (context) => noConnectionDialog());
+                }
+
                 showLoader(context);
 
                 final ({String result, bool success}) res;
@@ -105,5 +128,3 @@ class _NoteEditSheetState extends State<NoteEditSheet> {
     );
   }
 }
-
-// TODO: update call only when something is updated

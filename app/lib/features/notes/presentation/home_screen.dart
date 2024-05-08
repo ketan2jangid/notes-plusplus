@@ -1,7 +1,9 @@
 import 'dart:developer';
 
+import 'package:app/common/alerts.dart';
 import 'package:app/common/app_colors.dart';
 import 'package:app/common/block_button.dart';
+import 'package:app/common/check_internet.dart';
 import 'package:app/common/loader.dart';
 import 'package:app/common/new_note_sheet.dart';
 import 'package:app/common/note_card.dart';
@@ -31,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List? notes;
   int selectedNote = -1;
   final ProfileController _profileController = ProfileController();
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -42,7 +45,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getData() async {
     // notes = await NotesController().getAllNotes();
-    if (LocalStorage.isUserVerified != true) return;
+    if (LocalStorage.isUserVerified != true) {
+      setState(() {
+        isLoading = false;
+      });
+
+      return;
+    }
+
+    final bool con = await isConnected();
+    log("Connected: $con");
+
+    if (!con) {
+      setState(() {
+        isLoading = false;
+      });
+
+      return showDialog(
+          context: context, builder: (context) => noConnectionDialog());
+    }
 
     final res = await context.read<NotesCubit>().getAllNotes();
 
@@ -52,6 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       notifyUser(context, "Err:" + res.result);
     }
+
+    setState(() {
+      isLoading = false;
+    });
 
     // log(notes.toString());
   }
@@ -155,6 +180,19 @@ class _HomeScreenState extends State<HomeScreen> {
                               ));
                     }
                   : () async {
+                      final bool con = await isConnected();
+                      log("Connected: $con");
+
+                      if (!con) {
+                        setState(() {
+                          isLoading = false;
+                        });
+
+                        return showDialog(
+                            context: context,
+                            builder: (context) => noConnectionDialog());
+                      }
+
                       showLoader(context);
 
                       final res = await context.read<NotesCubit>().deleteNote(
@@ -214,6 +252,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+            if (isLoading)
+              SliverToBoxAdapter(
+                child: LinearProgressIndicator(
+                  backgroundColor: appBackgroundColor,
+                  color: buttonWhite,
+                ),
+              ),
             LocalStorage.isUserVerified == false
                 ? SliverToBoxAdapter(
                     child: Container(
@@ -236,6 +281,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           Gap(18),
                           BlockButton(
                             onPressed: () async {
+                              final bool con = await isConnected();
+                              log("Connected: $con");
+
+                              if (!con) {
+                                setState(() {
+                                  isLoading = false;
+                                });
+
+                                return showDialog(
+                                    context: context,
+                                    builder: (context) => noConnectionDialog());
+                              }
+
                               showLoader(context);
                               final res = await _profileController
                                   .sendVerificationEmail();
@@ -333,5 +391,4 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// TODO: Load todos only for verified profile
 // TODO: Keys for res body
