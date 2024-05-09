@@ -11,12 +11,14 @@ class AuthRepository {
     try {
       Map<String, dynamic> data = {"email": email, "password": password};
 
-      final res = await http.post(
-        Uri.parse("${Endpoints.auth}${Endpoints.register}"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(data),
-        encoding: utf8,
-      );
+      final res = await http
+          .post(
+            Uri.parse("${Endpoints.auth}${Endpoints.register}"),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(data),
+            encoding: utf8,
+          )
+          .timeout(const Duration(seconds: 7));
 
       log(res.toString());
 
@@ -37,12 +39,14 @@ class AuthRepository {
     try {
       Map<String, dynamic> data = {"email": email, "password": password};
 
-      final res = await http.post(
-        Uri.parse("${Endpoints.auth}${Endpoints.login}"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(data),
-        encoding: utf8,
-      );
+      final res = await http
+          .post(
+            Uri.parse("${Endpoints.auth}${Endpoints.login}"),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(data),
+            encoding: utf8,
+          )
+          .timeout(const Duration(seconds: 7));
 
       log(res.toString());
 

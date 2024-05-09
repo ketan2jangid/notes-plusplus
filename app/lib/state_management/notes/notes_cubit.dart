@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:app/common/api_response.dart';
@@ -9,6 +10,10 @@ class NotesCubit extends Cubit<List<NoteModel>> {
   final NotesRepo _repo = NotesRepo();
 
   NotesCubit() : super([]);
+
+  Future<void> clear() async {
+    emit([]);
+  }
 
   Future<({bool success, String result})> getAllNotes() async {
     try {
@@ -26,6 +31,13 @@ class NotesCubit extends Cubit<List<NoteModel>> {
       } else {
         return (success: false, result: res.msg.toString());
       }
+    } on TimeoutException catch (t) {
+      log("Timeout Error: Can't connect to server");
+
+      return (
+        success: false,
+        result: "(Timeout Error) Can't connect to server"
+      );
     } catch (e) {
       log(e.toString());
 
@@ -41,10 +53,17 @@ class NotesCubit extends Cubit<List<NoteModel>> {
       if (res.success == true) {
         emit([...state, NoteModel.fromJson(res.data['newNote'])]);
 
-        return (success: true, result: "");
+        return (success: true, result: "New note added");
       } else {
         return (success: false, result: res.msg.toString());
       }
+    } on TimeoutException catch (t) {
+      log("Timeout Error: Can't connect to server");
+
+      return (
+        success: false,
+        result: "(Timeout Error) Can't connect to server"
+      );
     } catch (e) {
       log(e.toString());
 
@@ -82,10 +101,17 @@ class NotesCubit extends Cubit<List<NoteModel>> {
 
         emit(notesUpdated);
 
-        return (success: true, result: "");
+        return (success: true, result: "Note updated");
       } else {
         return (success: false, result: res.msg.toString());
       }
+    } on TimeoutException catch (t) {
+      log("Timeout Error: Can't connect to server");
+
+      return (
+        success: false,
+        result: "(Timeout Error) Can't connect to server"
+      );
     } catch (e) {
       log(e.toString());
 
@@ -105,10 +131,17 @@ class NotesCubit extends Cubit<List<NoteModel>> {
 
         emit(notes);
 
-        return (success: true, result: "");
+        return (success: true, result: "Note deleted");
       } else {
         return (success: false, result: res.msg.toString());
       }
+    } on TimeoutException catch (t) {
+      log("Timeout Error: Can't connect to server");
+
+      return (
+        success: false,
+        result: "(Timeout Error) Can't connect to server"
+      );
     } catch (e) {
       log(e.toString());
 

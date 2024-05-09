@@ -2,21 +2,16 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:app/common/api_response.dart';
-import 'package:app/features/authentication/data/auth_repo.dart';
 import 'package:app/features/authentication/domain/user.dart';
+import 'package:app/features/profile/data/profile_repo.dart';
 import 'package:app/storage/local_storage.dart';
 
-class AuthController {
-  String token = '';
-  final AuthRepository _repo = AuthRepository();
+class ProfileController {
+  final ProfileRepository _repo = ProfileRepository();
 
-  Future<({bool success, String result})> registerUser(
-      {required String email, required String password}) async {
+  Future<({bool success, String result})> sendVerificationEmail() async {
     try {
-      final ApiResponse res =
-          await _repo.registerUser(email: email, password: password);
-
-      log(res.toString());
+      final ApiResponse res = await _repo.sendVerificationEmail();
 
       if (res.success == true) {
         return (success: true, result: "");
@@ -37,25 +32,17 @@ class AuthController {
     }
   }
 
-  Future<({bool success, String result})> loginUser(
-      {required String email, required String password}) async {
+  Future<({bool success, String result})> verifyOtp(String otp) async {
     try {
-      final ApiResponse res =
-          await _repo.loginUser(email: email, password: password);
-
-      log(res.success.toString() +
-          '\n' +
-          res.msg.toString() +
-          '\n' +
-          res.data.toString());
-
-      // token = res['token'];
-      // await LocalStorage.setUserToken(res['token']);
-      // await LocalStorage.setUserEmail(res['userData']['email']);
+      final ApiResponse res = await _repo.verifyOtp(otp);
 
       if (res.success == true) {
-        log(res.data.toString());
-        await LocalStorage.setAppUser(User.fromJson(res.data['userData']));
+        // TODO: update user profile
+        User user = LocalStorage.userProfile!;
+
+        user.isVerified = true;
+
+        await LocalStorage.setAppUser(user);
 
         return (success: true, result: "");
       } else {

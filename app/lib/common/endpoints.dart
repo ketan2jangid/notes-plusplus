@@ -12,6 +12,10 @@ class Endpoints {
   static const String register = "register";
   static const String login = "login";
 
+  // Profile Endpoints
+  static const String sendVerificationEmail = "verifyEmail";
+  static const String verifyOtp = "verifyOtp";
+
   // Notes Endpoints
   static const String getAll = "all";
 }

@@ -9,9 +9,11 @@ import 'package:app/common/notify_user.dart';
 import 'package:app/features/authentication/presentation/auth_controller.dart';
 import 'package:app/features/authentication/presentation/registration_screen.dart';
 import 'package:app/features/notes/presentation/home_screen.dart';
+import 'package:app/state_management/notes/notes_cubit.dart';
 import 'package:app/storage/local_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -63,102 +65,116 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               Flexible(
-                child: Container(),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Notes++',
+                    style: GoogleFonts.jost(
+                      color: buttonWhite,
+                      fontSize: 48,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ),
               Expanded(
-                child: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Label(text: 'Email'),
-                            Gap(6),
-                            CommonInputField(
-                              controller: _emailController,
-                              type: FieldType.email,
-                            ),
-                            Gap(12),
-                            Label(text: 'Password'),
-                            Gap(6),
-                            CommonInputField(
-                              controller: _passwordController,
-                              isPassword: true,
-                              type: FieldType.password,
-                            ),
-                            Gap(12),
-                            Center(
-                              child: BlockButton(
-                                onPressed: () async {
-                                  log("button pressed");
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Label(text: 'Email'),
+                          Gap(6),
+                          CommonInputField(
+                            controller: _emailController,
+                            type: FieldType.email,
+                            onEditingComplete: () {
+                              FocusScope.of(context).nextFocus();
+                            },
+                          ),
+                          Gap(12),
+                          Label(text: 'Password'),
+                          Gap(6),
+                          CommonInputField(
+                            controller: _passwordController,
+                            isPassword: true,
+                            type: FieldType.password,
+                            onEditingComplete: () {
+                              FocusScope.of(context).nextFocus();
+                            },
+                          ),
+                          Gap(12),
+                          Center(
+                            child: BlockButton(
+                              onPressed: () async {
+                                // log("button pressed");
 
-                                  if (!_formKey.currentState!.validate()) {
-                                    return;
-                                  }
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
+                                }
 
-                                  showLoader(context);
+                                showLoader(context);
 
-                                  // await Future.delayed(Duration(seconds: 2));
+                                final res = await AuthController().loginUser(
+                                  email: _emailController.text,
+                                  password: _passwordController.text,
+                                );
 
-                                  final res = await AuthController().loginUser(
-                                      email: _emailController.text,
-                                      password: _passwordController.text);
+                                // log("***** " + res + " *****");
 
-                                  log("***** " + res + " *****");
-                                  // TODO: If login successful, navigate to another screen
-
-                                  hideLoader(context);
-                                  if (res == "login successful") {
-                                    Navigator.push(
+                                hideLoader(context);
+                                if (res.success == true) {
+                                  Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => HomeScreen(),
                                       ),
-                                    );
-                                  }
+                                      (route) => false);
 
-                                  notifyUser(context, res);
-                                },
-                                text: 'Login',
-                              ),
+                                  notifyUser(context, "Login successful");
+                                } else {
+                                  notifyUser(context, "Err:" + res.result);
+                                }
+                              },
+                              text: 'Login',
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      Gap(8),
-                      Center(
-                        child: RichText(
-                          text: TextSpan(children: [
-                            TextSpan(
-                              text: "Don't have an account? ",
-                              style: GoogleFonts.jost(
-                                color: buttonWhite,
-                                fontSize: 12,
-                              ),
+                    ),
+                    Gap(12),
+                    Center(
+                      child: RichText(
+                        text: TextSpan(children: [
+                          TextSpan(
+                            text: "Don't have an account? ",
+                            style: GoogleFonts.jost(
+                              color: buttonWhite,
+                              fontSize: 12,
                             ),
-                            TextSpan(
-                              text: "Register",
-                              style: GoogleFonts.jost(
-                                color: buttonWhite,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => RegisterScreen(),
-                                      ),
+                          ),
+                          TextSpan(
+                            text: "Register",
+                            style: GoogleFonts.jost(
+                              color: buttonWhite,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RegisterScreen(),
                                     ),
-                            ),
-                          ]),
-                        ),
+                                  ),
+                          ),
+                        ]),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],
