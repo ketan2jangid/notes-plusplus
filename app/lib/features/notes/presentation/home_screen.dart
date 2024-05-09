@@ -13,6 +13,7 @@ import 'package:app/features/authentication/presentation/login_screen.dart';
 import 'package:app/features/notes/presentation/notes_controller.dart';
 import 'package:app/features/profile/presentation/profile_controller.dart';
 import 'package:app/state_management/notes/notes_cubit.dart';
+import 'package:app/state_management/profile/profile_cubit.dart';
 import 'package:app/storage/local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -259,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: buttonWhite,
                 ),
               ),
-            LocalStorage.isUserVerified == false
+            context.watch<ProfileCubit>().state!.isVerified == false
                 ? SliverToBoxAdapter(
                     child: Container(
                       margin: EdgeInsets.symmetric(vertical: 24),
@@ -295,7 +296,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
 
                               showLoader(context);
-                              final res = await _profileController
+                              final res = await context
+                                  .read<ProfileCubit>()
                                   .sendVerificationEmail();
 
                               hideLoader(context);
@@ -325,63 +327,72 @@ class _HomeScreenState extends State<HomeScreen> {
                 : SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing: 16.0,
-                                  crossAxisSpacing: 12,
-                                  childAspectRatio: 8 / 11),
-                          itemCount: notesCubit.state.length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: (selectedNote == -1)
-                                  // open sheet for editing
-                                  ? () {
-                                      showModalBottomSheet(
-                                          isScrollControlled: true,
-                                          context: context,
-                                          builder: (context) => Padding(
-                                                padding: EdgeInsets.only(
-                                                    bottom:
-                                                        MediaQuery.of(context)
+                      child: context.watch<NotesCubit>().state.isEmpty
+                          ? Center(
+                              child: Text(
+                                "Your notes appear here",
+                                style: GoogleFonts.jost(
+                                  color: Colors.grey.shade500,
+                                ),
+                              ),
+                            )
+                          : GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 16.0,
+                                      crossAxisSpacing: 12,
+                                      childAspectRatio: 8 / 11),
+                              itemCount: notesCubit.state.length,
+                              itemBuilder: (context, index) {
+                                return GestureDetector(
+                                  onTap: (selectedNote == -1)
+                                      // open sheet for editing
+                                      ? () {
+                                          showModalBottomSheet(
+                                              isScrollControlled: true,
+                                              context: context,
+                                              builder: (context) => Padding(
+                                                    padding: EdgeInsets.only(
+                                                        bottom: MediaQuery.of(
+                                                                context)
                                                             .viewInsets
                                                             .bottom),
-                                                child: NoteEditSheet(
-                                                  id: notesCubit
-                                                      .state[index].id,
-                                                  title: notesCubit
-                                                      .state[index].title,
-                                                  body: notesCubit
-                                                      .state[index].body,
-                                                ),
-                                              ));
-                                    }
-                                  // deselect note
-                                  : (selectedNote == index)
-                                      ? () => setState(() {
-                                            selectedNote = -1;
-                                          })
-                                      // select the taped note
-                                      : () => setState(() {
-                                            selectedNote = index;
-                                          }),
-                              onLongPress: () {
-                                setState(() {
-                                  selectedNote =
-                                      (selectedNote == index) ? -1 : index;
-                                });
-                              },
-                              child: NoteCard(
-                                title: notesCubit.state[index].title!,
-                                body: notesCubit.state[index].body!,
-                                isSelected: (selectedNote == index),
-                                counter: 0,
-                              ),
-                            );
-                          }),
+                                                    child: NoteEditSheet(
+                                                      id: notesCubit
+                                                          .state[index].id,
+                                                      title: notesCubit
+                                                          .state[index].title,
+                                                      body: notesCubit
+                                                          .state[index].body,
+                                                    ),
+                                                  ));
+                                        }
+                                      // deselect note
+                                      : (selectedNote == index)
+                                          ? () => setState(() {
+                                                selectedNote = -1;
+                                              })
+                                          // select the taped note
+                                          : () => setState(() {
+                                                selectedNote = index;
+                                              }),
+                                  onLongPress: () {
+                                    setState(() {
+                                      selectedNote =
+                                          (selectedNote == index) ? -1 : index;
+                                    });
+                                  },
+                                  child: NoteCard(
+                                    title: notesCubit.state[index].title!,
+                                    body: notesCubit.state[index].body!,
+                                    isSelected: (selectedNote == index),
+                                    counter: 0,
+                                  ),
+                                );
+                              }),
                     ),
                   )
           ],
