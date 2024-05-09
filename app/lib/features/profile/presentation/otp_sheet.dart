@@ -5,7 +5,9 @@ import 'package:app/common/labels.dart';
 import 'package:app/common/loader.dart';
 import 'package:app/common/notify_user.dart';
 import 'package:app/features/profile/presentation/profile_controller.dart';
+import 'package:app/state_management/profile/profile_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 
 class OtpVerifySheet extends StatefulWidget {
@@ -66,8 +68,9 @@ class _OtpVerifySheetState extends State<OtpVerifySheet> {
                 showLoader(context);
                 // TODO: Add state management for user profile
 
-                final res =
-                    await _profileController.verifyOtp(_otpController.text);
+                final res = await context
+                    .read<ProfileCubit>()
+                    .verifyOtp(_otpController.text);
                 // setState(() {});
 
                 hideLoader(context);

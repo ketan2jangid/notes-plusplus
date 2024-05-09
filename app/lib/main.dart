@@ -2,6 +2,7 @@ import 'package:app/common/app_colors.dart';
 import 'package:app/features/authentication/presentation/login_screen.dart';
 import 'package:app/features/notes/presentation/home_screen.dart';
 import 'package:app/state_management/notes/notes_cubit.dart';
+import 'package:app/state_management/profile/profile_cubit.dart';
 import 'package:app/storage/local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +23,9 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<NotesCubit>(
           create: (context) => NotesCubit(),
+        ),
+        BlocProvider<ProfileCubit>(
+          create: (context) => ProfileCubit(),
         ),
       ],
       child: MaterialApp(
